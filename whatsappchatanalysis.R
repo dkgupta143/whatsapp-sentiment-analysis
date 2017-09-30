@@ -1,3 +1,4 @@
+#install the below libraries before loading
 library(ggplot2)
 library(lubridate)
 library(scales)
@@ -11,28 +12,26 @@ library(syuzhet)
 library(dplyr ) 
 
 #get the data from whatsapp chat 
-text <- readLines("ChatwithKCCGang.txt", n = 1000)
-#s <- "who are í ½í¸€ bringing?"
-s2 <- iconv(text, "UTF-8", "ASCII", sub = "")
-s2
+s2 <- readLines("place you chat file here", n = 1000)
+s2 <- iconv(s2, "UTF-8", "ASCII", sub = "")
 s2 <- gsub("<Media omitted>", " ", s2)
-s2 <- gsub("Sunilkar J", " ", s2)
-s2
-text <- s2
 
 
-#let us create the corpus
-docs <- Corpus(VectorSource(text))
 
-#clean our chat data
+#create the corpus
+docs <- Corpus(VectorSource(s2))
+
+#clean the chat text file
 trans <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
 docs <- tm_map(docs, trans, "/")
 docs <- tm_map(docs, trans, "@")
 docs <- tm_map(docs, trans, "\\|")
 docs <- tm_map(docs, content_transformer(tolower))
 docs <- tm_map(docs, removeNumbers)
+#stopwords you don't want
 docs <- tm_map(docs, removeWords, stopwords("english"))
-docs <- tm_map(docs, removeWords, c("sudharsan","friendName"))
+#to remove sender names
+docs <- tm_map(docs, removeWords, c("john doe","friendName2"))
 docs <- tm_map(docs, removePunctuation)
 docs <- tm_map(docs, stripWhitespace)
 docs <- tm_map(docs, stemDocument)
@@ -54,18 +53,18 @@ wordcloud(words = data$word, freq = data$freq, min.freq = 1,
           colors=brewer.pal(8, "Dark2"))
 
 
-#fetch sentiment words from texts
-Sentiment <- get_nrc_sentiment(text)
+#fetch sentiment words from text
+Sentiment <- get_nrc_sentiment(s2)
 head(Sentiment)
-text <- cbind(text,Sentiment)
+s2 <- cbind(s2,Sentiment)
 
 #count the sentiment words by category
-TotalSentiment <- data.frame(colSums(text[,c(2:11)]))
+TotalSentiment <- data.frame(colSums(s2[,c(2:11)]))
 names(TotalSentiment) <- "count"
 TotalSentiment <- cbind("sentiment" = rownames(TotalSentiment), TotalSentiment)
 rownames(TotalSentiment) <- NULL
 
-#total sentiment score of all texts
+#Print the sentiment plot
 ggplot(data = TotalSentiment, aes(x = sentiment, y = count)) +
   geom_bar(aes(fill = sentiment), stat = "identity") +
   theme(legend.position = "none") +

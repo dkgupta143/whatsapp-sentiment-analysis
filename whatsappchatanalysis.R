@@ -1,22 +1,12 @@
-#install the below libraries before loading
-library(ggplot2)
-library(lubridate)
-library(scales)
-library(reshape2)
 library(tm)
-library(SnowballC)
 library(wordcloud)
-library(RColorBrewer)
-library(stringr)
-library(syuzhet) 
-library(dplyr ) 
-
+library(syuzhet)
+library(ggplot2)
+library(tm)
 #get the data from whatsapp chat 
 s2 <- readLines("place you chat file here", n = 1000)
 s2 <- iconv(s2, "UTF-8", "ASCII", sub = "")
 s2 <- gsub("<Media omitted>", " ", s2)
-
-
 
 #create the corpus
 docs <- Corpus(VectorSource(s2))
